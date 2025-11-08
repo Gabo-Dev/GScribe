@@ -28,6 +28,9 @@ jobs:
 
       - name: Build project
         run: pnpm run build # 2. Construye tu app (ahora pnpm existe)
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_KEY: ${{ secrets.VITE_SUPABASE_KEY }}
 
       - name: Deploy to Firebase
         uses: FirebaseExtended/action-hosting-deploy@v0 # 3. Despliega
