@@ -4,7 +4,7 @@ import './index.css'
 import App from './infrastructure/ui/App.tsx'
 import { supabaseClient } from './infrastructure/lib/supabaseClient.ts'
 import { SupabaseAuthAdapter } from './infrastructure/adapters/SupaBaseAuthAdapter.ts';
-import { LoginUseCase } from './application/auth/LoginUseCase.tsx';
+import { LoginUseCase } from './application/auth/LoginUseCase.ts';
 import { SignUpUseCase } from './application/auth/SignUpUseCase.ts';
 import { LogOutUseCase } from './application/auth/LogOutUseCase.ts';
 
