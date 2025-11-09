@@ -1,7 +1,7 @@
 import type { User } from "../../core/domain/User";
 import type { IAuthService } from "../../core/ports/IAuthService";
 
-export class SignInUpUseCase {
+export class SignUpUseCase {
     private authService: IAuthService;
     constructor(authService: IAuthService) {
         this.authService = authService;
