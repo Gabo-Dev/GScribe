@@ -33,7 +33,7 @@ import { SupabaseClient } from "@supabase/supabase-js";
     }
   }
 
-  async signUp(email: string, alias: string, password: string): Promise<User> {
+  async signUp(email: string, alias: string, password: string, captchaToken: string): Promise<User> {
     try {
       const { data, error } = await this.supabase.auth.signUp({
         email: email,
@@ -41,6 +41,7 @@ import { SupabaseClient } from "@supabase/supabase-js";
         options: {
           data: {
             alias: alias,
+            captchaToken: captchaToken
           },
         },
       });
