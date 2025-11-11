@@ -7,6 +7,7 @@ import { SupabaseAuthAdapter } from './infrastructure/adapters/SupaBaseAuthAdapt
 import { LoginUseCase } from './application/auth/LoginUseCase.ts';
 import { SignUpUseCase } from './application/auth/SignUpUseCase.ts';
 import { LogOutUseCase } from './application/auth/LogOutUseCase.ts';
+import { AuthProvider } from './infrastructure/ui/context/AuthProvide.tsx';
 
 const authAdapter = new SupabaseAuthAdapter(supabaseClient);
 const loginUseCase = new LoginUseCase(authAdapter);
@@ -26,10 +27,12 @@ const logOutUseCase = new LogOutUseCase(authAdapter);
  */
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <App
+    <AuthProvider>
+      <App
       loginUseCase={loginUseCase}
       signUpUseCase={signUpUseCase}
       logOutUseCase={logOutUseCase}
     />
+    </AuthProvider>
   </StrictMode>,
 )
