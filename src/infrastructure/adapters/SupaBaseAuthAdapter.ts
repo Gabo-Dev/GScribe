@@ -3,7 +3,6 @@ import type { User } from "../../core/domain/User";
 import { SupabaseClient } from "@supabase/supabase-js";
 
 /**
-
  * * Following Clean Architecture principles, this Adapter acts as the "plugin"
  * that connects our application's core logic to a specific external tool (Supabase).
  * * Its primary responsibilities are:
