@@ -151,6 +151,7 @@ import { SupabaseClient } from "@supabase/supabase-js";
       if (error instanceof Error) {
         errorMessage = error.message;
         console.error("Supabase anonymous sign-in error:", error.message);
+        console.log("supabase error", error);
       } else {
         console.error("Supabase anonymous sign-in error (unknown):", error);
       }
