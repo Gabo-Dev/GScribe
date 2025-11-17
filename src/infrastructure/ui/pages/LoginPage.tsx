@@ -27,7 +27,6 @@ export function LoginPage({
   const captchaRef = useRef<HCaptcha>(null);
   const hCaptchaSiteKey = import.meta.env.VITE_HCAPTCHA_SITE_KEY;
 
-  console.error('HCaptcha Site Key Debug:', hCaptchaSiteKey);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
