@@ -9,8 +9,6 @@ interface LoginPageProps {
   loginUseCase: LoginUseCase;
   signInAnonymouslyUseCase: SignInAnonymouslyUseCase;
 }
-  const hCaptchaSiteKey = import.meta.env.VITE_HCAPTCHA_SITE_KEY;
-
 
 export function LoginPage({ 
   loginUseCase, 
@@ -27,6 +25,7 @@ export function LoginPage({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   
   const captchaRef = useRef<HCaptcha>(null);
+  const hCaptchaSiteKey = import.meta.env.VITE_HCAPTCHA_SITE_KEY;
 
   console.error('HCaptcha Site Key Debug:', hCaptchaSiteKey);
 
