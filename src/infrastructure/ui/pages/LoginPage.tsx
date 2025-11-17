@@ -299,7 +299,7 @@ export function LoginPage({
                 disabled={isLoading || isGuestLoading}
                 className="w-full py-3.5 bg-gray-600/50 text-gray-200 rounded-lg font-medium hover:bg-gray-600/80 focus:outline-none focus:ring-2 focus:ring-gray-400/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
               >
-                {isGuestLoading ? 'Verifying...' : 'Continue as Guest'}
+                {isGuestLoading ? 'Verifying....' : 'Continue as Guest'}
               </button>
 
               <div className="flex items-center">
