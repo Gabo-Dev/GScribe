@@ -1,24 +1,63 @@
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { useAuth } from './hooks/useAuth';
+import { LoginPage } from './pages/LoginPage';
+import { SignUpPage } from './pages/SignUpPage';
+import { DashboardPage } from './pages/DashboardPage';
+
 import type { LoginUseCase } from '../../application/auth/LoginUseCase';
 import type { SignUpUseCase } from '../../application/auth/SignUpUseCase';
 import type { LogOutUseCase } from '../../application/auth/LogOutUseCase';
+import type { SignInAnonymouslyUseCase } from '../../application/auth/SignInAnonymouslyUseCase';
 
 interface AppProps {
   loginUseCase: LoginUseCase;
   signUpUseCase: SignUpUseCase;
   logOutUseCase: LogOutUseCase;
+  signInAnonymouslyUseCase: SignInAnonymouslyUseCase;
 }
-function App({ loginUseCase, signUpUseCase, logOutUseCase }: AppProps) {
-  console.log("Login Use Case Injected:", loginUseCase);
-  console.log("Sign Up Use Case Injected:", signUpUseCase);
-  console.log("Log Out Use Case Injected:", logOutUseCase);
+
+function App({ 
+  loginUseCase, 
+  signUpUseCase, 
+  logOutUseCase, 
+  signInAnonymouslyUseCase 
+}: AppProps) {
+  
+  const { user } = useAuth();
+
   return (
-    <>
-      <div className="bg-gray-900 text-white min-h-screen p-8">
-      <h1 className="text-3xl font-bold text-cyan-400">
-        GScribe
-      </h1>
-    </div>
-    </>
+    <BrowserRouter>
+      <Routes>
+        
+        <Route 
+          path="/login" 
+          element={
+            user ? <Navigate to="/" /> : 
+            <LoginPage 
+              loginUseCase={loginUseCase} 
+              signInAnonymouslyUseCase={signInAnonymouslyUseCase} 
+            />
+          } 
+        />
+        
+        <Route 
+          path="/signup" 
+          element={
+            user ? <Navigate to="/" /> : 
+            <SignUpPage signUpUseCase={signUpUseCase} />
+          } 
+        />
+        
+        <Route 
+          path="/" 
+          element={
+            user ? 
+            <DashboardPage logOutUseCase={logOutUseCase} /> : 
+            <Navigate to="/login" />
+          } 
+        />
+      </Routes>
+    </BrowserRouter>
   );
 }
 

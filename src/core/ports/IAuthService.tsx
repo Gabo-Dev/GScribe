@@ -25,4 +25,10 @@ export interface IAuthService {
      * @returns A Promise that resolves with no value (`void`) on success.
      */
     logOut(): Promise<void>;
+    /**
+     * Signs in a user anonymously (Guest Mode).
+     * If signs-in fails, it throws an user-friendly error.
+     * @returns A Promise that resolves with the new (anonymous) User object
+     */
+    signInAnonymously(captchaToken: string): Promise<User>;
 }

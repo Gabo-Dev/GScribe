@@ -16,8 +16,9 @@ This tool is being built to serve as a centralized workspace. The objective is t
 * **Framework:** React
 * **Bundler/Build Tool:** Vite
 * **Styling:** Tailwind CSS
-* **Backend (BaaS):** Supabase (PostgreSQL, Auth)
+* **Backend (BaaS):** Supabase (PostgreSQL, Auth, RLS)
 * **Hosting:** Firebase Hosting
+* **Security:** hCaptcha
 * **Testing (Unit/Integration):** Jest + React Testing Library
 * **Testing (End-to-End):** Cypress
 
@@ -27,14 +28,23 @@ This project follows the principles of **Hexagonal Architecture** to separate co
 
 The `src` directory is structured to reflect this separation:
 
-* **`src/core`**: The heart of the application (pure TypeScript, no React/Supabase).
-    * **`domain`**: Contains the core business models (e.g., `User.ts`, `Project.ts`, `Note.ts`).
-    * **`ports`**: Defines the interfaces for communication with the outside world (e.g., `IAuthService.ts`, `IProjectRepository.ts`).
+* **`src/core`**: The heart of the application (pure TypeScript).
+    * **`domain`**: Contains the core business models (e.g., `User.ts`, `Project.ts`).
+    * **`ports`**: Defines the interfaces for communication (e.g., `IAuthService.ts`).
 * **`src/application`**:
-    * Contains the application-specific use cases that orchestrate the domain logic (e.g., `CreateNoteUseCase.ts`, `GetUserProjectsUseCase.ts`).
+    * Contains the application-specific use cases that orchestrate the domain logic (e.g., `CreateNoteUseCase.ts`).
 * **`src/infrastructure`**:
-    * **`adapters`**: The implementation of the ports using specific technology (e.g., `SupabaseAuthAdapter.ts`, `SupabaseNoteRepository.ts`).
-    * **`ui`**: The React components, hooks, and pages that form the User Interface (e.g., `App.tsx`, `pages/Dashboard.tsx`).
+    * **`adapters`**: The implementation of the ports using specific technology (e.g., `SupabaseAuthAdapter.ts`). This layer handles all direct interaction with Supabase, including data mapping and error translation.
+    * **`ui`**: The React components, hooks, and pages that form the User Interface.
+
+## ✨ Key Features
+
+This project is built with a "security-first" and "robust-demo" approach:
+
+* **Secure RLS Policies:** Utilizes Supabase's Row Level Security to ensure all data (notes, projects) is 100% isolated to the authenticated user.
+* **Bot Protection:** Implements **hCaptcha** on the sign-up flow to prevent bot abuse.
+* **Guest Demo Mode:** Features an anonymous sign-in ("Guest Button") that provides a full-featured "sandbox" environment for each user, leveraging the same RLS policies for total data isolation.
+* **Self-Cleaning Database:** A daily Cron Job automatically purges anonymous guest accounts older than 48 hours to maintain a clean and efficient database.
 
 ## Project Status
 

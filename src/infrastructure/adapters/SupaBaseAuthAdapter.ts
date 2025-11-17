@@ -129,4 +129,33 @@ import { SupabaseClient } from "@supabase/supabase-js";
       throw new Error(errorMessage); // Display a generic error message
     }
   }
+  async signInAnonymously(captchaToken: string): Promise<User>{
+    try {
+      const { data, error } = await this.supabase.auth.signInAnonymously({
+        options:{captchaToken}
+      });
+      if(error) throw error;
+
+      // --- Guard Clause ---
+      if (!data.user) {
+        throw new Error("Anonymous sign-in failed.");
+      }
+
+      return {
+        id: data.user.id,
+        email: null,
+        alias: null,
+      };
+    } catch (error) {
+      // --- Type Guard & Error Translation ---
+      let errorMessage = "An unexpected error occurred during guest sign-in.";
+      if (error instanceof Error) {
+        errorMessage = error.message;
+        console.error("Supabase anonymous sign-in error:", error.message);
+      } else {
+        console.error("Supabase anonymous sign-in error (unknown):", error);
+      }
+      throw new Error(errorMessage);
+    }
+  }
 }
