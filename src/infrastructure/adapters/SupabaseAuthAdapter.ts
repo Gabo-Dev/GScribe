@@ -34,17 +34,40 @@ import { SupabaseClient } from "@supabase/supabase-js";
 
   async signUp(email: string, alias: string, password: string, captchaToken: string): Promise<User> {
     try {
+
+      console.log('[Adapter] Input recibido:',
+        {
+          email,
+          alias,
+          password,
+          captchaToken: captchaToken ? `present (${captchaToken.substring(0, 10)}...)` : 'MISSING'
+          });
+
       const { data, error } = await this.supabase.auth.signUp({
         email: email,
         password: password,
         options: {
           data: {
             alias: alias,
-            captchaToken: captchaToken
           },
+          captchaToken: captchaToken
         },
       });
 
+      console.log('🔍 [Adapter] Respuesta de Supabase:', {
+      tieneUsuario: !!data?.user,
+      tieneError: !!error,
+      error: error ? {
+        mensaje: error.message,
+        nombre: error.name,
+        status: error.status
+      } : 'No hay error',
+      usuario: data?.user ? {
+        id: data.user.id,
+        email: data.user.email,
+        metadata: data.user.user_metadata
+      } : 'No hay usuario'
+    });
       if (error) {
         throw error;
       }
@@ -76,10 +99,8 @@ import { SupabaseClient } from "@supabase/supabase-js";
       if (errorMessage.includes("User already registered")) {
         throw new Error("This email is already in use.");
       }
-      if (errorMessage.includes("Password")) {
-        throw new Error(
-          "The password is too weak. Please use a stronger password."
-        );
+      if (errorMessage.includes("Password should contain")) {
+         throw new Error("Password must contain: uppercase letter, lowercase letter, number, and symbol");
       }
 
       console.error("Supabase signUp error:", errorMessage);

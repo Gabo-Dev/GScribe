@@ -1,24 +1,35 @@
-import { useState, useEffect, useRef } from 'react';
-import { useAuth } from '../hooks/useAuth';
-import type { SignUpUseCase } from '../../../application/auth/SignUpUseCase';
-import { Link, useNavigate } from 'react-router-dom';
-import HCaptcha from '@hcaptcha/react-hcaptcha';
+import { useState, useEffect, useRef } from "react";
+import { useAuth } from "../hooks/useAuth";
+import type { SignUpUseCase } from "../../../application/auth/SignUpUseCase";
+import { Link, useNavigate } from "react-router-dom";
+import HCaptcha from "@hcaptcha/react-hcaptcha";
 
 interface SignUpPageProps {
   signUpUseCase: SignUpUseCase;
 }
+const validatePassword = (password: string): string | null => {
+  const hasUpper = /[A-Z]/.test(password);
+  const hasLower = /[a-z]/.test(password);
+  const hasNumber = /[0-9]/.test(password);
+  const hasSymbol = /[!@#$%^&*()_+\-=\[\]{};':"|,.<>?~`]/.test(password);
+
+  if (!hasUpper || !hasLower || !hasNumber || !hasSymbol) {
+    return "Password must include uppercase, lowercase, numbers, and symbols";
+  }
+  return null;
+};
 
 export function SignUpPage({ signUpUseCase }: SignUpPageProps) {
   const { setUser } = useAuth();
   const navigate = useNavigate();
 
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [alias, setAlias] = useState('');
-  
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [alias, setAlias] = useState("");
+
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  
+
   const captchaRef = useRef<HCaptcha>(null);
   const hCaptchaSiteKey = import.meta.env.VITE_HCAPTCHA_SITE_KEY;
 
@@ -31,13 +42,37 @@ export function SignUpPage({ signUpUseCase }: SignUpPageProps) {
     setError(null);
     setIsLoading(true);
 
+    const passwordError = validatePassword(password);
+    if (passwordError) {
+      setError(passwordError);
+      setIsLoading(false);
+      captchaRef.current?.resetCaptcha();
+      return;
+    }
     try {
-      const user = await signUpUseCase.execute(email, alias, password, captchaToken);
+      const user = await signUpUseCase.execute(
+        email,
+        alias,
+        password,
+        captchaToken
+      );
       setUser(user);
-      navigate('/'); // Redirige al Dashboard
+      navigate("/");
     } catch (err) {
-      if (err instanceof Error) setError(err.message);
-      else setError('An unexpected error occurred.');
+      console.error("SignUp error details:", {
+        error: err,
+        captchaToken: captchaToken ? "present" : "missing",
+        hCaptchaKey: hCaptchaSiteKey ? "present" : "missing",
+      });
+
+      if (err instanceof Error) {
+        console.error("🔍 Error stack:", err.stack);
+        console.error("🔍 Error message:", err.message);
+      }
+
+      setError(
+        "Registration failed. Please check your credentials and try again."
+      );
       captchaRef.current?.resetCaptcha();
     } finally {
       setIsLoading(false);
@@ -56,7 +91,7 @@ export function SignUpPage({ signUpUseCase }: SignUpPageProps) {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
     let width = (canvas.width = window.innerWidth);
@@ -66,7 +101,7 @@ export function SignUpPage({ signUpUseCase }: SignUpPageProps) {
       width = canvas.width = window.innerWidth;
       height = canvas.height = window.innerHeight;
     };
-    window.addEventListener('resize', resize);
+    window.addEventListener("resize", resize);
 
     const nodes = Array.from({ length: 20 }).map(() => ({
       x: Math.random() * width,
@@ -81,7 +116,7 @@ export function SignUpPage({ signUpUseCase }: SignUpPageProps) {
 
     function draw() {
       if (!ctx) return;
-      ctx.fillStyle = '#010310';
+      ctx.fillStyle = "#010310";
       ctx.fillRect(0, 0, width, height);
       const time = Date.now() * 0.001;
 
@@ -90,12 +125,20 @@ export function SignUpPage({ signUpUseCase }: SignUpPageProps) {
         const currentBrightness = node.brightness * (0.8 + pulse * 0.4);
 
         const halo = ctx.createRadialGradient(
-          node.x, node.y, 0, node.x, node.y, node.size * 6
+          node.x,
+          node.y,
+          0,
+          node.x,
+          node.y,
+          node.size * 6
         );
         halo.addColorStop(0, `rgba(160, 220, 255, ${currentBrightness * 0.3})`);
-        halo.addColorStop(0.6, `rgba(120, 200, 255, ${currentBrightness * 0.1})`);
-        halo.addColorStop(1, 'rgba(120, 200, 255, 0)');
-        
+        halo.addColorStop(
+          0.6,
+          `rgba(120, 200, 255, ${currentBrightness * 0.1})`
+        );
+        halo.addColorStop(1, "rgba(120, 200, 255, 0)");
+
         ctx.fillStyle = halo;
         ctx.beginPath();
         ctx.arc(node.x, node.y, node.size * 5, 0, Math.PI * 2);
@@ -118,7 +161,7 @@ export function SignUpPage({ signUpUseCase }: SignUpPageProps) {
       requestAnimationFrame(draw);
     }
     draw();
-    return () => window.removeEventListener('resize', resize);
+    return () => window.removeEventListener("resize", resize);
   }, []);
 
   return (
@@ -127,7 +170,6 @@ export function SignUpPage({ signUpUseCase }: SignUpPageProps) {
 
       <div className="relative z-10 w-full max-w-sm px-6">
         <div className="backdrop-blur-lg bg-white/3 rounded-xl border border-white/10 p-8 transition-all duration-300">
-          
           <div className="text-center mb-8">
             <h1 className="text-2xl font-light text-white tracking-wide mb-2">
               Create Account
@@ -152,7 +194,7 @@ export function SignUpPage({ signUpUseCase }: SignUpPageProps) {
                 required
               />
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">
                 Email
@@ -184,25 +226,34 @@ export function SignUpPage({ signUpUseCase }: SignUpPageProps) {
 
             {error && (
               <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
-                <p className="text-sm text-red-300 text-center">
-                  {error}
-                </p>
+                <p className="text-sm text-red-300 text-center">{error}</p>
               </div>
             )}
 
             {hCaptchaSiteKey ? (
               <HCaptcha
-              ref={captchaRef}
-              sitekey={hCaptchaSiteKey || ''}
-              onVerify={(token) => handleSignUp(token)}
-              onError={() => setError("Captcha verification failed.")}
-              onExpire={() => setError("Captcha expired. Please try again.")}
-              size="invisible"
-            />
-            ):(
+                ref={captchaRef}
+                sitekey={hCaptchaSiteKey || ""}
+                onVerify={(token) => {
+                  console.log(
+                    "hCaptcha token received: ",
+                    token ? "YES" : "NO"
+                  );
+                  handleSignUp(token);
+                }}
+                onError={() => {
+                  console.error("hCaptcha error.");
+                  setError("Security verification failed. Please try again.");
+                }}
+                onExpire={() =>
+                  setError("Security check expired. Please try again.")
+                }
+                size="invisible"
+              />
+            ) : (
               <div className="p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
                 <p className="text-sm text-yellow-200 text-center">
-                  ⚠️  Missing Captcha Key
+                  ⚠️ Missing Captcha Key
                 </p>
               </div>
             )}
@@ -211,13 +262,13 @@ export function SignUpPage({ signUpUseCase }: SignUpPageProps) {
               disabled={isLoading}
               className="w-full py-3.5 bg-sky-500/95 text-white rounded-lg font-medium hover:bg-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-400/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
             >
-              {isLoading ? 'Creating Account...' : 'Sign Up'}
+              {isLoading ? "Creating Account..." : "Sign Up"}
             </button>
           </form>
 
           <div className="mt-6 text-center">
             <p className="text-xs text-gray-500">
-              Already have an account?{' '}
+              Already have an account?{" "}
               <Link
                 to="/login"
                 className="text-sky-400 hover:text-sky-300 transition-colors"
