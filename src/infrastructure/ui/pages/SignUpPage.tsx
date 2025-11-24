@@ -11,7 +11,7 @@ const validatePassword = (password: string): string | null => {
   const hasUpper = /[A-Z]/.test(password);
   const hasLower = /[a-z]/.test(password);
   const hasNumber = /[0-9]/.test(password);
-  const hasSymbol = /[!@#$%^&*()_+\-=\[\]{};':"|,.<>?~`]/.test(password);
+  const hasSymbol = /[!@#$%^&*()_+\-=[\]{};':"|,.<>?~`]/.test(password);
 
   if (!hasUpper || !hasLower || !hasNumber || !hasSymbol) {
     return "Password must include uppercase, lowercase, numbers, and symbols";
@@ -53,8 +53,7 @@ export function SignUpPage({ signUpUseCase }: SignUpPageProps) {
       const user = await signUpUseCase.execute(
         email,
         alias,
-        password,
-        captchaToken
+        password
       );
       setUser(user);
       navigate("/");

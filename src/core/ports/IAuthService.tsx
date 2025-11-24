@@ -6,10 +6,9 @@ export interface IAuthService {
      * @param email 
      * @param alias public name of the user
      * @param password 
-     * @param captchaToken The verification token from reCAPTCHA
      * @returns A Promise that resolves with the new User object
      */
-    signUp(email: string, alias: string, password: string, captchaToken: string): Promise<User>;
+    signUp(email: string, alias: string, password: string): Promise<User>;
 
     /**
      * Signs in a user in the system
@@ -30,5 +29,5 @@ export interface IAuthService {
      * If signs-in fails, it throws an user-friendly error.
      * @returns A Promise that resolves with the new (anonymous) User object
      */
-    signInAnonymously(captchaToken: string): Promise<User>;
+    signInAnonymously(): Promise<User>;
 }
