@@ -50,9 +50,9 @@ export function LoginPage({
     captchaRef.current?.execute();
   };
 
-  const onGuestCaptchaVerified = async (token: string) => {
+  const onGuestCaptchaVerified = async () => {
     try {
-      const user = await signInAnonymouslyUseCase.execute(token);
+      const user = await signInAnonymouslyUseCase.execute();
       setUser(user);
     } catch (err) {
       if (err instanceof Error) setError(err.message);
@@ -289,7 +289,9 @@ export function LoginPage({
                   ref={captchaRef}
                   sitekey={hCaptchaSiteKey}
                   onVerify={onGuestCaptchaVerified}
-                  onError={() => { setError("Captcha verification failed."); setIsGuestLoading(false); }}
+                  onError={() => { 
+                    setError("Captcha verification failed."); 
+                    setIsGuestLoading(false); }}
                   onExpire={() => { setError("Captcha expired."); setIsGuestLoading(false); }}
                   size="invisible"
                 />
