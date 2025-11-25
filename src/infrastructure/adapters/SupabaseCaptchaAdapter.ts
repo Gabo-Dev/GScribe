@@ -1,10 +1,10 @@
-import type { ICaptchaService } from "../../core/ports/ICaptchaService";
+import type { ICaptchaService } from "../../core/ports/ICaptchaService.ts";
 
-export class FirebaseCaptchaAdapter implements ICaptchaService {
+export class SupabaseCaptchaAdapter implements ICaptchaService {
     private readonly endpointUrl: string;
     constructor(endpointUrl: string) {
         if (!endpointUrl) {
-            console.warn("FirebaseCaptchaAdapter: Endpoint URL is missing.");
+            console.warn("SupabaseCaptchaAdapter: Endpoint URL is missing.");
         }
         this.endpointUrl = endpointUrl;
     }
