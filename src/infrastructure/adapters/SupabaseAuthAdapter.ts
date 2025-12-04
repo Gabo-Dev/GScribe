@@ -1,6 +1,7 @@
-import type { IAuthService } from "../../core/ports/IAuthService";
-import type { User } from "../../core/domain/User";
+import type { IAuthService } from "../../core/ports/IAuthService.ts";
+import type { User } from "../../core/domain/User.tsx";
 import { SupabaseClient } from "@supabase/supabase-js";
+import type { ICaptchaService } from "../../core/ports/ICaptchaService.ts";
 
 /**
  * * Following Clean Architecture principles, this Adapter acts as the "plugin"
@@ -10,10 +11,19 @@ import { SupabaseClient } from "@supabase/supabase-js";
  * API calls required by Supabase (e.g., `supabase.auth.signInWithPassword`).
  * 2. To perform "Error Translation": catching low-level Supabase errors
  * and re-throwing user-friendly ones.
- */ export class SupabaseAuthAdapter implements IAuthService {
+ */
+export class SupabaseAuthAdapter implements IAuthService {
   private supabase: SupabaseClient;
-  constructor(client: SupabaseClient) {
+  private captchaService: ICaptchaService;
+  constructor(client: SupabaseClient, captchaService: ICaptchaService) {
     this.supabase = client;
+    this.captchaService = captchaService;
+  }
+  private async ensureIsHuman(token: string): Promise<void> {
+    const isValid = await this.captchaService.verify(token);
+    if (!isValid) {
+      throw new Error("Captcha verification failed. Please try again.");
+    }
   }
   async logOut(): Promise<void> {
     try {
@@ -32,16 +42,10 @@ import { SupabaseClient } from "@supabase/supabase-js";
     }
   }
 
-  async signUp(email: string, alias: string, password: string): Promise<User> {
+  async signUp(email: string, alias: string, password: string, captchaToken: string): Promise<User> {
     try {
-
-      console.log('[Adapter] Input recibido:',
-        {
-          email,
-          alias,
-          password,
-          });
-
+      await this.ensureIsHuman(captchaToken);
+      console.log("🔵 [DEBUG] Intentando registrar:", email);
       const { data, error } = await this.supabase.auth.signUp({
         email: email,
         password: password,
@@ -51,21 +55,13 @@ import { SupabaseClient } from "@supabase/supabase-js";
           },
         },
       });
-
-      console.log('🔍 [Adapter] Respuesta de Supabase:', {
-      tieneUsuario: !!data?.user,
-      tieneError: !!error,
-      error: error ? {
-        mensaje: error.message,
-        nombre: error.name,
-        status: error.status
-      } : 'No hay error',
-      usuario: data?.user ? {
-        id: data.user.id,
-        email: data.user.email,
-        metadata: data.user.user_metadata
-      } : 'No hay usuario'
-    });
+      console.log("🟡 [DEBUG] Respuesta cruda de Supabase:", { 
+        userID: data.user?.id, 
+        userEmail: data.user?.email,
+        errorObject: error,
+        errorCode: error?.code,
+        errorMessage: error?.message
+      });
       if (error) {
         throw error;
       }
@@ -98,7 +94,7 @@ import { SupabaseClient } from "@supabase/supabase-js";
         throw new Error("This email is already in use.");
       }
       if (errorMessage.includes("Password should contain")) {
-         throw new Error("Password must contain: uppercase letter, lowercase letter, number, and symbol");
+        throw new Error("Password must contain: uppercase letter, lowercase letter, number, and symbol");
       }
 
       console.error("Supabase signUp error:", errorMessage);
@@ -145,15 +141,16 @@ import { SupabaseClient } from "@supabase/supabase-js";
       if (errorMessage.includes("Invalid login credentials")) {
         throw new Error("Incorrect email or password.");
       }
-      
+
       console.error("Supabase signIn error:", errorMessage);
       throw new Error(errorMessage); // Display a generic error message
     }
   }
-  async signInAnonymously(): Promise<User>{
+  async signInAnonymously(captchaToken: string): Promise<User> {
     try {
+      await this.ensureIsHuman(captchaToken);
       const { data, error } = await this.supabase.auth.signInAnonymously();
-      if(error) throw error;
+      if (error) throw error;
 
       // --- Guard Clause ---
       if (!data.user) {

@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
-import { useAuth } from '../hooks/useAuth';
-import type { LoginUseCase } from '../../../application/auth/LoginUseCase';
+import { useAuth } from '../hooks/useAuth.ts';
+import type { LoginUseCase } from '../../../application/auth/LoginUseCase.ts';
 import { Link } from 'react-router-dom';
-import type { SignInAnonymouslyUseCase } from '../../../application/auth/SignInAnonymouslyUseCase'; 
+import type { SignInAnonymouslyUseCase } from '../../../application/auth/SignInAnonymouslyUseCase.ts'; 
 import HCaptcha from '@hcaptcha/react-hcaptcha';
 
 interface LoginPageProps {
@@ -50,9 +50,9 @@ export function LoginPage({
     captchaRef.current?.execute();
   };
 
-  const onGuestCaptchaVerified = async () => {
+  const onGuestCaptchaVerified = async (token: string) => {
     try {
-      const user = await signInAnonymouslyUseCase.execute();
+      const user = await signInAnonymouslyUseCase.execute(token);
       setUser(user);
     } catch (err) {
       if (err instanceof Error) setError(err.message);
@@ -68,14 +68,14 @@ export function LoginPage({
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    let width = (canvas.width = window.innerWidth);
-    let height = (canvas.height = window.innerHeight);
+    let width = (canvas.width = globalThis.innerWidth);
+    let height = (canvas.height = globalThis.innerHeight);
 
     const resize = () => {
-      width = canvas.width = window.innerWidth;
-      height = canvas.height = window.innerHeight;
+      width = canvas.width = globalThis.innerWidth;
+      height = canvas.height = globalThis.innerHeight;
     };
-    window.addEventListener('resize', resize);
+    globalThis.addEventListener('resize', resize);
 
     const nodes = Array.from({ length: 20 }).map(() => ({
       x: Math.random() * width,
@@ -202,7 +202,7 @@ export function LoginPage({
     }
 
     draw();
-    return () => window.removeEventListener('resize', resize);
+    return () => globalThis.removeEventListener('resize', resize);
   }, []);
 
   return (
@@ -277,6 +277,7 @@ export function LoginPage({
 
               <button
                 disabled={isLoading || isGuestLoading}
+                type="submit"
                 className="w-full py-3.5 bg-sky-500/95 text-white rounded-lg font-medium hover:bg-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-400/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
               >
                 {isLoading ? 'Signing in...' : 'Sign In'}
@@ -299,6 +300,7 @@ export function LoginPage({
 
               <button
                 onClick={handleGuestClick}
+                type="button"
                 disabled={isLoading || isGuestLoading}
                 className="w-full py-3.5 bg-gray-600/50 text-gray-200 rounded-lg font-medium hover:bg-gray-600/80 focus:outline-none focus:ring-2 focus:ring-gray-400/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
               >
@@ -315,6 +317,7 @@ export function LoginPage({
 
               <button
                 onClick={() => setIsEmailLoginVisible(true)}
+                type="button"
                 disabled={isLoading || isGuestLoading}
                 className="w-full py-3.5 bg-sky-500/95 text-white rounded-lg font-medium hover:bg-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-400/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
               >
@@ -327,6 +330,7 @@ export function LoginPage({
             {isEmailLoginVisible ? (
               <button
                 onClick={() => setIsEmailLoginVisible(false)}
+                type="button"
                 className="text-xs text-gray-500 hover:text-sky-300 transition-colors"
               >
                 &larr; Back to all options
