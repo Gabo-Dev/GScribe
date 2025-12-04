@@ -32,6 +32,7 @@ jobs:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_KEY: ${{ secrets.VITE_SUPABASE_KEY }}
           VITE_HCAPTCHA_SITE_KEY: ${{ secrets.VITE_HCAPTCHA_SITE_KEY }}
+          VITE_CAPTCHA_URL: ${{ secrets.VITE_CAPTCHA_URL }}
 
       - name: Deploy to Firebase
         uses: FirebaseExtended/action-hosting-deploy@v0 # 3. Despliega
