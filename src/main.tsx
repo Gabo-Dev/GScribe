@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './infrastructure/ui/App.tsx'
 import { supabaseClient } from './infrastructure/lib/supabaseClient.ts'
+import { SupabaseCaptchaAdapter } from './infrastructure/adapters/SupabaseCaptchaAdapter.ts'
 import { LoginUseCase } from './application/auth/LoginUseCase.ts';
 import { SignUpUseCase } from './application/auth/SignUpUseCase.ts';
 import { LogOutUseCase } from './application/auth/LogOutUseCase.ts';
@@ -10,7 +11,16 @@ import {SignInAnonymouslyUseCase} from './application/auth/SignInAnonymouslyUseC
 import { AuthProvider } from './infrastructure/ui/context/AuthProvider.tsx';
 import { SupabaseAuthAdapter } from './infrastructure/adapters/SupabaseAuthAdapter.ts'
 
-const authAdapter = new SupabaseAuthAdapter(supabaseClient);
+const captchaUrl = import.meta.env.VITE_CAPTCHA_URL;
+const supabaseKey = import.meta.env.VITE_SUPABASE_KEY;
+if (!captchaUrl) {
+  throw new Error('Missing CAPTCHA_URL environment variable');
+}
+if (!supabaseKey) {
+  throw new Error('Missing SUPABASE_KEY environment variable');
+}
+const captchaService = new SupabaseCaptchaAdapter(captchaUrl, supabaseKey);
+const authAdapter = new SupabaseAuthAdapter(supabaseClient, captchaService);
 const loginUseCase = new LoginUseCase(authAdapter);
 const signUpUseCase = new SignUpUseCase(authAdapter);
 const logOutUseCase = new LogOutUseCase(authAdapter);

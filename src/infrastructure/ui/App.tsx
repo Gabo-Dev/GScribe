@@ -1,13 +1,13 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { useAuth } from './hooks/useAuth';
-import { LoginPage } from './pages/LoginPage';
-import { SignUpPage } from './pages/SignUpPage';
-import { DashboardPage } from './pages/DashboardPage';
+import { useAuth } from './hooks/useAuth.ts';
+import { LoginPage } from './pages/LoginPage.tsx';
+import { SignUpPage } from './pages/SignUpPage.tsx';
+import { DashboardPage } from './pages/DashboardPage.tsx';
 
-import type { LoginUseCase } from '../../application/auth/LoginUseCase';
-import type { SignUpUseCase } from '../../application/auth/SignUpUseCase';
-import type { LogOutUseCase } from '../../application/auth/LogOutUseCase';
-import type { SignInAnonymouslyUseCase } from '../../application/auth/SignInAnonymouslyUseCase';
+import type { LoginUseCase } from '../../application/auth/LoginUseCase.ts';
+import type { SignUpUseCase } from '../../application/auth/SignUpUseCase.ts';
+import type { LogOutUseCase } from '../../application/auth/LogOutUseCase.ts';
+import type { SignInAnonymouslyUseCase } from '../../application/auth/SignInAnonymouslyUseCase.ts';
 
 interface AppProps {
   loginUseCase: LoginUseCase;

@@ -1,4 +1,4 @@
-import type { User } from "../domain/User";
+import type { User } from "../domain/User.tsx";
 
 export interface IAuthService {
     /**
@@ -8,7 +8,7 @@ export interface IAuthService {
      * @param password 
      * @returns A Promise that resolves with the new User object
      */
-    signUp(email: string, alias: string, password: string): Promise<User>;
+    signUp(email: string, alias: string, password: string, captchaToken: string): Promise<User>;
 
     /**
      * Signs in a user in the system
@@ -29,5 +29,5 @@ export interface IAuthService {
      * If signs-in fails, it throws an user-friendly error.
      * @returns A Promise that resolves with the new (anonymous) User object
      */
-    signInAnonymously(): Promise<User>;
+    signInAnonymously(captchaToken: string): Promise<User>;
 }

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
-import { useAuth } from "../hooks/useAuth";
-import type { SignUpUseCase } from "../../../application/auth/SignUpUseCase";
+import { useAuth } from "../hooks/useAuth.ts";
+import type { SignUpUseCase } from "../../../application/auth/SignUpUseCase.ts";
 import { Link, useNavigate } from "react-router-dom";
 import HCaptcha from "@hcaptcha/react-hcaptcha";
 
@@ -39,39 +39,23 @@ export function SignUpPage({ signUpUseCase }: SignUpPageProps) {
   }
 
   const handleSignUp = async (captchaToken: string) => {
-    setError(null);
-    setIsLoading(true);
-
-    const passwordError = validatePassword(password);
-    if (passwordError) {
-      setError(passwordError);
-      setIsLoading(false);
-      captchaRef.current?.resetCaptcha();
-      return;
-    }
     try {
       const user = await signUpUseCase.execute(
         email,
         alias,
-        password
+        password,
+        captchaToken
       );
       setUser(user);
       navigate("/");
     } catch (err) {
-      console.error("SignUp error details:", {
-        error: err,
-        captchaToken: captchaToken ? "present" : "missing",
-        hCaptchaKey: hCaptchaSiteKey ? "present" : "missing",
-      });
-
-      if (err instanceof Error) {
-        console.error("🔍 Error stack:", err.stack);
-        console.error("🔍 Error message:", err.message);
+      console.error(err);
+      if (err instanceof Error){
+        setError(err.message);
       }
-
-      setError(
-        "Registration failed. Please check your credentials and try again."
-      );
+      else {
+        setError("An unexpected error occurred. Please check your connection.");
+      }
       captchaRef.current?.resetCaptcha();
     } finally {
       setIsLoading(false);
@@ -81,9 +65,23 @@ export function SignUpPage({ signUpUseCase }: SignUpPageProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+
+    const passwordError = validatePassword(password);
+    if (passwordError) {
+      setError(passwordError);
+      return;
+    }
+
+    if (!captchaRef.current) {
+      setError("System Error: Captcha validation unavailable.");
+      return;
+    }
+
     setIsLoading(true);
-    captchaRef.current?.execute();
+    captchaRef.current.execute();
   };
+
+  
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -93,14 +91,14 @@ export function SignUpPage({ signUpUseCase }: SignUpPageProps) {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    let width = (canvas.width = window.innerWidth);
-    let height = (canvas.height = window.innerHeight);
+    let width = (canvas.width = globalThis.innerWidth);
+    let height = (canvas.height = globalThis.innerHeight);
 
     const resize = () => {
-      width = canvas.width = window.innerWidth;
-      height = canvas.height = window.innerHeight;
+      width = canvas.width = globalThis.innerWidth;
+      height = canvas.height = globalThis.innerHeight;
     };
-    window.addEventListener("resize", resize);
+    globalThis.addEventListener("resize", resize);
 
     const nodes = Array.from({ length: 20 }).map(() => ({
       x: Math.random() * width,
@@ -160,7 +158,7 @@ export function SignUpPage({ signUpUseCase }: SignUpPageProps) {
       requestAnimationFrame(draw);
     }
     draw();
-    return () => window.removeEventListener("resize", resize);
+    return () => globalThis.removeEventListener("resize", resize);
   }, []);
 
   return (
@@ -258,6 +256,7 @@ export function SignUpPage({ signUpUseCase }: SignUpPageProps) {
             )}
 
             <button
+              type="submit"
               disabled={isLoading}
               className="w-full py-3.5 bg-sky-500/95 text-white rounded-lg font-medium hover:bg-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-400/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
             >
