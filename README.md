@@ -20,7 +20,7 @@ This tool is being built to serve as a centralized workspace. The objective is t
 * **Serverless Logic:** Supabase Edge Functions (Deno)
 * **Hosting:** Firebase Hosting
 * **Security:** hCaptcha
-* **Testing (Unit/Integration):** Jest + React Testing Library
+* **Testing (Unit/Integration):** Vitest
 * **Testing (End-to-End):** Cypress
 
 ## 🚀 Project Architecture
@@ -55,15 +55,15 @@ We use a **Serverless** approach to validate hCaptcha tokens, ensuring the `HCAP
 
 ## ✨ Key Features
 
-This project is built with a "security-first" and "robust-demo" approach:
+This project is built with a "security-first" approach:
 
+* **Strict Authentication:** Robust email/password authentication flow with mandatory strict type validation.
 * **Secure RLS Policies:** Utilizes Supabase's Row Level Security to ensure all data (notes, projects) is 100% isolated to the authenticated user.
-* **Bot Protection:** Implements **hCaptcha** with **server-side validation** to prevent bot abuse and protect database resources.
-* **Guest Demo Mode:** Features an anonymous sign-in ("Guest Button") that provides a full-featured "sandbox" environment for each user, leveraging the same RLS policies for total data isolation.
-* **Self-Cleaning Database:** A daily Cron Job automatically purges anonymous guest accounts older than 48 hours to maintain a clean and efficient database.
+* **Bot Protection:** Implements **hCaptcha** with **server-side validation** during registration to prevent bot abuse and protect database resources.
+* **Clean Architecture:** Fully decoupled business logic using Ports and Adapters, ensuring maintainability and testability.
 
 ## Project Status
 
-:construction: **Under Development** :construction:
+:construction: **Under Development (v1.0 Preparation)** :construction:
 
-This project is currently in the initial setup and development phase.
+This project is currently finalizing core features and security implementations.
