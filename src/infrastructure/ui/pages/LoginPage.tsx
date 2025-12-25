@@ -2,31 +2,20 @@ import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../hooks/useAuth.ts';
 import type { LoginUseCase } from '../../../application/auth/LoginUseCase.ts';
 import { Link } from 'react-router-dom';
-import type { SignInAnonymouslyUseCase } from '../../../application/auth/SignInAnonymouslyUseCase.ts'; 
-import HCaptcha from '@hcaptcha/react-hcaptcha';
 
 interface LoginPageProps {
   loginUseCase: LoginUseCase;
-  signInAnonymouslyUseCase: SignInAnonymouslyUseCase;
 }
 
-export function LoginPage({ 
-  loginUseCase, 
-  signInAnonymouslyUseCase 
-}: LoginPageProps) {
+export function LoginPage({ loginUseCase }: LoginPageProps) {
   
   const { setUser } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [isGuestLoading, setIsGuestLoading] = useState(false); 
-  const [isEmailLoginVisible, setIsEmailLoginVisible] = useState(false);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
   
-  const captchaRef = useRef<HCaptcha>(null);
-  const hCaptchaSiteKey = import.meta.env.VITE_HCAPTCHA_SITE_KEY;
-
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,24 +33,7 @@ export function LoginPage({
     }
   };
 
-  const handleGuestClick = () => {
-    setError(null);
-    setIsGuestLoading(true);
-    captchaRef.current?.execute();
-  };
-
-  const onGuestCaptchaVerified = async (token: string) => {
-    try {
-      const user = await signInAnonymouslyUseCase.execute(token);
-      setUser(user);
-    } catch (err) {
-      if (err instanceof Error) setError(err.message);
-      else setError('An unexpected error occurred.');
-      setIsGuestLoading(false);
-      captchaRef.current?.resetCaptcha();
-    }
-  };
-
+  // Canvas animation logic
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -214,18 +186,8 @@ export function LoginPage({
           
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center w-14 h-14 mb-4 rounded-xl bg-linear-to-br from-sky-500/90 to-blue-600/90">
-              <svg
-                className="w-7 h-7 text-white"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M13 10V3L4 14h7v7l9-11h-7z"
-                />
+              <svg className="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
             </div>
             <h1 className="text-2xl font-light text-white tracking-wide mb-2">
@@ -237,115 +199,59 @@ export function LoginPage({
             <div className="h-px w-12 mx-auto bg-linear-to-r from-transparent via-gray-500 to-transparent"></div>
           </div>
 
-          {isEmailLoginVisible ? (
-            <form className="space-y-5" onSubmit={handleSubmit}>
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-3 bg-white/5 border border-gray-600/40 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-sky-400/60 focus:bg-white/8 transition-all duration-200"
-                  placeholder="your@email.com"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Password
-                </label>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-4 py-3 bg-white/5 border border-gray-600/40 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-sky-400/60 focus:bg-white/8 transition-all duration-200"
-                  placeholder="••••••••"
-                  required
-                />
-              </div>
-
-              {error && (
-                <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
-                  <p className="text-sm text-red-300 text-center">
-                    {error}
-                  </p>
-                </div>
-              )}
-
-              <button
-                disabled={isLoading || isGuestLoading}
-                type="submit"
-                className="w-full py-3.5 bg-sky-500/95 text-white rounded-lg font-medium hover:bg-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-400/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
-              >
-                {isLoading ? 'Signing in...' : 'Sign In'}
-              </button>
-            </form>
-          ) : (
-            <div className="space-y-4">
-              {hCaptchaSiteKey && (
-                <HCaptcha
-                  ref={captchaRef}
-                  sitekey={hCaptchaSiteKey}
-                  onVerify={onGuestCaptchaVerified}
-                  onError={() => { 
-                    setError("Captcha verification failed."); 
-                    setIsGuestLoading(false); }}
-                  onExpire={() => { setError("Captcha expired."); setIsGuestLoading(false); }}
-                  size="invisible"
-                />
-              )}
-
-              <button
-                onClick={handleGuestClick}
-                type="button"
-                disabled={isLoading || isGuestLoading}
-                className="w-full py-3.5 bg-gray-600/50 text-gray-200 rounded-lg font-medium hover:bg-gray-600/80 focus:outline-none focus:ring-2 focus:ring-gray-400/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
-              >
-                {isGuestLoading ? 'Verifying....' : 'Continue as Guest'}
-              </button>
-
-              <div className="flex items-center">
-                <div className="grow border-t border-gray-600/30"></div>
-                <span className="shrink mx-4 text-xs text-gray-400">
-                  OR
-                </span>
-                <div className="grow border-t border-gray-600/30"></div>
-              </div>
-
-              <button
-                onClick={() => setIsEmailLoginVisible(true)}
-                type="button"
-                disabled={isLoading || isGuestLoading}
-                className="w-full py-3.5 bg-sky-500/95 text-white rounded-lg font-medium hover:bg-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-400/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
-              >
-                Sign In with Email
-              </button>
+          <form className="space-y-5" onSubmit={handleSubmit}>
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Email
+              </label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full px-4 py-3 bg-white/5 border border-gray-600/40 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-sky-400/60 focus:bg-white/8 transition-all duration-200"
+                placeholder="your@email.com"
+                required
+              />
             </div>
-          )}
+
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Password
+              </label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-4 py-3 bg-white/5 border border-gray-600/40 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-sky-400/60 focus:bg-white/8 transition-all duration-200"
+                placeholder="••••••••"
+                required
+              />
+            </div>
+
+            {error && (
+              <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
+                <p className="text-sm text-red-300 text-center">
+                  {error}
+                </p>
+              </div>
+            )}
+
+            <button
+              disabled={isLoading}
+              type="submit"
+              className="w-full py-3.5 bg-sky-500/95 text-white rounded-lg font-medium hover:bg-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-400/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+            >
+              {isLoading ? 'Signing in...' : 'Sign In'}
+            </button>
+          </form>
 
           <div className="mt-6 text-center">
-            {isEmailLoginVisible ? (
-              <button
-                onClick={() => setIsEmailLoginVisible(false)}
-                type="button"
-                className="text-xs text-gray-500 hover:text-sky-300 transition-colors"
-              >
-                &larr; Back to all options
-              </button>
-            ) : (
-              <p className="text-xs text-gray-500">
-                Don't have an account?{' '}
-                <Link
-                  to="/signup"
-                  className="text-sky-400 hover:text-sky-300 transition-colors"
-                >
-                  Sign up
-                </Link>
-              </p>
-            )}
+            <p className="text-xs text-gray-500">
+              Don't have an account?{' '}
+              <Link to="/signup" className="text-sky-400 hover:text-sky-300 transition-colors">
+                Sign up
+              </Link>
+            </p>
           </div>
         </div>
       </div>

@@ -1,10 +1,9 @@
- 
-/**
+ /**
  *  data type to let TS use it to build contracts.
  *  email and alias are optional (? check) 
  * */
 export interface User{
     id: string; 
-    email?: string | null;
+    email: string;
     alias?: string | null;
 }

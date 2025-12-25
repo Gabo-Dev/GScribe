@@ -7,20 +7,17 @@ import { DashboardPage } from './pages/DashboardPage.tsx';
 import type { LoginUseCase } from '../../application/auth/LoginUseCase.ts';
 import type { SignUpUseCase } from '../../application/auth/SignUpUseCase.ts';
 import type { LogOutUseCase } from '../../application/auth/LogOutUseCase.ts';
-import type { SignInAnonymouslyUseCase } from '../../application/auth/SignInAnonymouslyUseCase.ts';
 
 interface AppProps {
   loginUseCase: LoginUseCase;
   signUpUseCase: SignUpUseCase;
   logOutUseCase: LogOutUseCase;
-  signInAnonymouslyUseCase: SignInAnonymouslyUseCase;
 }
 
 function App({ 
   loginUseCase, 
   signUpUseCase, 
   logOutUseCase, 
-  signInAnonymouslyUseCase 
 }: AppProps) {
   
   const { user } = useAuth();
@@ -28,15 +25,11 @@ function App({
   return (
     <BrowserRouter>
       <Routes>
-        
         <Route 
           path="/login" 
           element={
             user ? <Navigate to="/" /> : 
-            <LoginPage 
-              loginUseCase={loginUseCase} 
-              signInAnonymouslyUseCase={signInAnonymouslyUseCase} 
-            />
+            <LoginPage loginUseCase={loginUseCase} />
           } 
         />
         
