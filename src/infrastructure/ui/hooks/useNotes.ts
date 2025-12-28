@@ -4,11 +4,12 @@ import { getNotesUseCase, createNoteUseCase, deleteNoteUseCase, updateNoteUseCas
 
 export const useNotes = () =>{
     const [notes, setNotes] = useState<Note[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+    const [isNotesLoading, setIsNotesLoading] = useState(true);
+    const [isSaving, setIsSaving] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     const fetchNotes = useCallback(async () => {
-        setIsLoading(true);
+        setIsNotesLoading(true);
         setError(null);
         try {
             const data = await getNotesUseCase.execute();
@@ -17,11 +18,11 @@ export const useNotes = () =>{
             const message = err instanceof Error ? err.message : "Error desconocido";
             setError(message);
         } finally {
-            setIsLoading(false);
+            setIsNotesLoading(false);
         }
     }, []);
     const addNote = async (title: string, content: string) => {
-        setIsLoading(true);
+        setIsSaving(true);
         setError(null);
         try {
             const newNote = await createNoteUseCase.execute(title, content);
@@ -33,7 +34,7 @@ export const useNotes = () =>{
             setError(message);
             return false;
         } finally {
-            setIsLoading(false);
+            setIsSaving(false);
         }
     };
 
@@ -77,7 +78,8 @@ export const useNotes = () =>{
 
     return {
         notes,
-        isLoading,
+        isNotesLoading,
+        isSaving,
         error,
         fetchNotes, 
         addNote,
