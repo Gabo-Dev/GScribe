@@ -7,6 +7,9 @@ const mockPostgrestBuilder = {
     insert: vi.fn().mockReturnThis(),
     order: vi.fn().mockReturnThis(),
     single: vi.fn(),
+    update: vi.fn().mockReturnThis(),
+    eq: vi.fn().mockReturnThis(),
+    delete: vi.fn().mockReturnThis(),
 };
 
 const mockSupabaseClient = {
@@ -84,5 +87,49 @@ describe('SupabaseNoteAdapter', () => {
             expect(result.id).toBe('123');
             expect(result.createdAt).toBeInstanceOf(Date);
         });
+    });
+
+    describe('delete', () =>{
+        it('should delete a note by id', async () => {
+            mockPostgrestBuilder.delete.mockReturnThis();
+            mockPostgrestBuilder.eq.mockResolvedValueOnce({error: null});
+
+            await adapter.delete('123');
+
+            expect(mockPostgrestBuilder.delete).toHaveBeenCalledWith();
+            expect(mockPostgrestBuilder.eq).toHaveBeenCalledWith('id', '123');
+        });
+    });
+
+    describe('update', () => {
+        it('should update a note and return the new version', async () => {
+            const noteToUpdate = { 
+                id: '123', 
+                title: 'Updated Title', 
+                content: 'Updated Content', 
+                createdAt: new Date() 
+            };
+
+            const mockDbResponse = { 
+                id: '123', 
+                title: 'Updated Title', 
+                content: 'Updated Content', 
+                createdAt: '2023-01-01T10:00:00Z' 
+            };
+
+            mockPostgrestBuilder.update.mockReturnThis();
+            mockPostgrestBuilder.eq.mockReturnThis();
+            mockPostgrestBuilder.select.mockReturnThis();
+            mockPostgrestBuilder.single.mockResolvedValueOnce({ data: mockDbResponse, error: null });
+
+            const result = await adapter.update(noteToUpdate);
+
+            expect(mockPostgrestBuilder.update).toHaveBeenCalledWith({
+                title: 'Updated Title',
+                content: 'Updated Content'
+            });
+            expect(result.title).toBe('Updated Title');
+        });
+        
     });
 });

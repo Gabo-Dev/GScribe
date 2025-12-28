@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import type { Note } from "../../../core/domain/Note.ts";
-import { getNotesUseCase, createNoteUseCase } from "../../../di.ts";
+import { getNotesUseCase, createNoteUseCase, deleteNoteUseCase, updateNoteUseCase } from "../../../di.ts";
 
 export const useNotes = () =>{
     const [notes, setNotes] = useState<Note[]>([]);
@@ -37,6 +37,40 @@ export const useNotes = () =>{
         }
     };
 
+    const deleteNote = async (id: string) => {
+        const previousNotes = [...notes];
+
+        setNotes((prev) => prev.filter((note) => note.id !== id));
+        try {
+            await deleteNoteUseCase.execute(id);
+            return true;
+        } catch (error) {
+            setNotes(previousNotes);
+
+            const message = error instanceof Error ? error.message : "Error deleting note";
+            setError(message);
+            return false;
+        }
+    }
+
+    const updateNote = async (note: Note) => {
+        const previousNotes = [...notes];
+
+        setNotes((prev) =>
+            prev.map((note) => (note.id === note.id ? note : note))
+        );
+
+        try {
+            await updateNoteUseCase.execute(note);
+            return true;
+        } catch (error) {
+            setNotes(previousNotes);
+            const message = error instanceof Error ? error.message : "Error updating note";
+            setError(message);
+            return false;
+        }
+    }
+
     useEffect(() => {
         fetchNotes();
     }, [fetchNotes]);
@@ -46,6 +80,8 @@ export const useNotes = () =>{
         isLoading,
         error,
         fetchNotes, 
-        addNote
+        addNote,
+        deleteNote,
+        updateNote
     };
 }
