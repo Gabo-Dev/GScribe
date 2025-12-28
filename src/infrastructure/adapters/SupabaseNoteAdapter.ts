@@ -11,9 +11,20 @@ interface NoteDBResponse {
 
 export class SupabaseNoteAdapter implements INoteRepository {
     private readonly supabase: SupabaseClient;
+    
     constructor(client: SupabaseClient) {
         this.supabase = client;
     }
+
+    private mapToDomain(item: NoteDBResponse): Note {
+        return {
+            id: item.id,
+            title: item.title,
+            content: item.content,
+            createdAt: new Date(item.createdAt)
+        };
+    }
+    
 
     async getAll(): Promise<Note[]> {
         const { data, error } = await this.supabase
@@ -33,12 +44,7 @@ export class SupabaseNoteAdapter implements INoteRepository {
 
         if (!notesData) return [];
 
-        return notesData.map((item) => ({
-            id: item.id,
-            title: item.title,
-            content: item.content,
-            createdAt: new Date(item.createdAt)
-        }));
+        return notesData.map((item) => this.mapToDomain(item));
     }
 
     async create(note: Omit<Note, 'id' | 'createdAt'>): Promise<Note> {
@@ -61,11 +67,40 @@ export class SupabaseNoteAdapter implements INoteRepository {
 
         const newNote = data as unknown as NoteDBResponse;
 
-        return {
-            id: newNote.id,
-            title: newNote.title,
-            content: newNote.content,
-            createdAt: new Date(newNote.createdAt)
-        };
+        return this.mapToDomain(newNote);
     }
+
+    async delete(id: string): Promise<void> {
+        const { error } = await this.supabase
+            .from('notes')
+            .delete()
+            .eq('id', id);
+
+        if (error) throw new Error(error.message);
+    }
+
+    async update(note: Note): Promise<Note> {
+        const { data, error } = await this.supabase
+            .from('notes')
+            .update({
+                title: note.title,
+                content: note.content
+            })
+            .eq('id', note.id)
+            .select(`
+                id,
+                title,
+                content,
+                createdAt:created_at
+            `)
+            .single();
+
+        if (error) throw new Error(error.message);
+        if (!data) throw new Error("Update failed");
+
+        const updatedNote = data as unknown as NoteDBResponse;
+
+        return this.mapToDomain(updatedNote);
+    }
+
 }
