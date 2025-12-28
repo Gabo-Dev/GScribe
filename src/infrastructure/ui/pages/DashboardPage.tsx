@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { useAuth } from "../hooks/useAuth.ts";
-import { useNotes } from "../hooks/useNotes.ts"; // Nuestro Controller vitaminado
+import { useNotes } from "../hooks/useNotes.ts"; 
 import type { LogOutUseCase } from "../../../application/auth/LogOutUseCase.ts";
 import type { Note } from "../../../core/domain/Note.ts";
+import { useToast } from "../hooks/useToast.ts";
 
 interface DashboardPageProps {
     logOutUseCase: LogOutUseCase
@@ -10,6 +11,8 @@ interface DashboardPageProps {
 
 export function DashboardPage({ logOutUseCase }: DashboardPageProps) {
     const { user, setUser } = useAuth();
+
+    const { showToast } = useToast();
 
     const [isLogoutLoading, setIsLogoutLoading] = useState(false);
     
@@ -21,7 +24,8 @@ export function DashboardPage({ logOutUseCase }: DashboardPageProps) {
 
     const { 
         notes, 
-        isLoading: isNotesLoading, 
+        isNotesLoading,
+        isSaving,
         error: notesError, 
         addNote, 
         deleteNote, 
@@ -53,8 +57,10 @@ export function DashboardPage({ logOutUseCase }: DashboardPageProps) {
                 title,
                 content
             });
+            if (success) showToast('Note updated successfully', 'success');
         } else {
             success = await addNote(title, content);
+            if (success) showToast('Note created successfully', 'success');
         }
 
         if (success) {
@@ -65,7 +71,10 @@ export function DashboardPage({ logOutUseCase }: DashboardPageProps) {
     const handleDelete = async (id: string) => {
         if (globalThis.confirm("¿Seguro que quieres eliminar esta nota? Esta acción no se puede deshacer.")) {
             if (editingNote?.id === id) resetForm();
-            await deleteNote(id);
+            
+            const success = await deleteNote(id); 
+            
+            if (success) showToast("Nota eliminada", "info");
         }
     };
 
@@ -132,7 +141,7 @@ export function DashboardPage({ logOutUseCase }: DashboardPageProps) {
                         }`}>
                             <div className="flex justify-between items-center mb-4">
                                 <h2 className={`text-xl font-light ${editingNote ? "text-sky-400" : "text-gray-300"}`}>
-                                    {editingNote ? "Editar Nota" : "Nueva Nota"}
+                                    {editingNote ? "Edit Note" : "New Note"}
                                 </h2>
                                 {editingNote && (
                                     <button 
@@ -148,14 +157,14 @@ export function DashboardPage({ logOutUseCase }: DashboardPageProps) {
                             <form onSubmit={handleSaveNote} className="flex flex-col gap-4">
                                 <input
                                     type="text"
-                                    placeholder="Título (ej. Arquitectura Hexagonal)"
+                                    placeholder="Title Ex: Test Structure"
                                     className="bg-gray-900 border border-gray-700 rounded-lg p-3 text-white focus:ring-2 focus:ring-sky-500/50 focus:border-sky-500 outline-none placeholder-gray-600 transition-all"
                                     value={title}
                                     onChange={(e) => setTitle(e.target.value)}
                                     disabled={isNotesLoading} 
                                 />
                                 <textarea
-                                    placeholder="Escribe tu idea aquí..."
+                                    placeholder="Write your note..."
                                     className="bg-gray-900 border border-gray-700 rounded-lg p-3 text-white focus:ring-2 focus:ring-sky-500/50 focus:border-sky-500 outline-none h-40 resize-none placeholder-gray-600 transition-all"
                                     value={content}
                                     onChange={(e) => setContent(e.target.value)}
@@ -172,10 +181,10 @@ export function DashboardPage({ logOutUseCase }: DashboardPageProps) {
                                 >
                                     {editingNote ? (
                                         <>
-                                            <span>Actualizar Nota</span>
+                                            <span>Update Note</span>
                                         </>
                                     ) : (
-                                        isNotesLoading ? 'Guardando...' : 'Crear Nota'
+                                        isSaving ? 'Loading...' : 'Create Note'
                                     )}
                                 </button>
                             </form>
@@ -185,8 +194,8 @@ export function DashboardPage({ logOutUseCase }: DashboardPageProps) {
                     <section className="lg:col-span-2 space-y-4">
                         {notes.length === 0 && !isNotesLoading ? (
                             <div className="bg-gray-800/30 border border-gray-700/30 border-dashed rounded-xl p-12 text-center">
-                                <p className="text-gray-500">Tu mente está despejada.</p>
-                                <p className="text-gray-600 text-sm mt-2">Usa el formulario para capturar una idea.</p>
+                                <p className="text-gray-500"> You don't have notes yet</p>
+                                <p className="text-gray-600 text-sm mt-2">Create a note to get started</p>
                             </div>
                         ) : (
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -197,10 +206,8 @@ export function DashboardPage({ logOutUseCase }: DashboardPageProps) {
                                             editingNote?.id === note.id ? "ring-2 ring-sky-500 border-transparent" : "border-gray-700"
                                         }`}
                                     >
-                                        {/* CSS TRICK: min-w-0 evita que el flex child desborde el contenedor padre */}
                                         <div className="min-w-0"> 
                                             <div className="flex justify-between items-start gap-4 mb-2">
-                                                {/* TRUNCATE: Corta el texto con ... si es muy largo */}
                                                 <h3 className="font-bold text-lg text-gray-100 truncate w-full" title={note.title}>
                                                     {note.title}
                                                 </h3>
