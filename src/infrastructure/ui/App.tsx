@@ -9,17 +9,15 @@ import type { LoginUseCase } from "../../application/auth/LoginUseCase.ts";
 import type { SignUpUseCase } from "../../application/auth/SignUpUseCase.ts";
 import type { LogOutUseCase } from "../../application/auth/LogOutUseCase.ts";
 import type { SendPasswordResetEmailUseCase } from "../../application/auth/SendPasswordResetEmailUseCase.ts";
-import type { UpdatePasswordUseCase } from "../../application/auth/UpdatePasswordUseCase.ts";
 
 interface AppProps {
   loginUseCase: LoginUseCase;
   signUpUseCase: SignUpUseCase;
   logOutUseCase: LogOutUseCase;
   sendPasswordResetEmailUseCase: SendPasswordResetEmailUseCase;
-  updatePasswordUseCase: UpdatePasswordUseCase;
 }
 
-function App({ loginUseCase, signUpUseCase, logOutUseCase, sendPasswordResetEmailUseCase, updatePasswordUseCase }: AppProps) {
+function App({ loginUseCase, signUpUseCase, logOutUseCase, sendPasswordResetEmailUseCase }: AppProps) {
   const { user } = useAuth();
 
   return (
@@ -54,7 +52,7 @@ function App({ loginUseCase, signUpUseCase, logOutUseCase, sendPasswordResetEmai
           <Route
           path="/reset-password"
           element={
-            <UpdatePasswordPage  updatePasswordUseCase={updatePasswordUseCase}/>
+            <UpdatePasswordPage />
           }
           />
 
