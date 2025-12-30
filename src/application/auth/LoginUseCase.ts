@@ -1,5 +1,5 @@
-import type { IAuthService } from "../../core/ports/IAuthService";
-import type { User } from "../../core/domain/User";
+import type { IAuthService } from "../../core/ports/IAuthService.ts";
+import type { User } from "../../core/domain/User.ts";
 
 export class LoginUseCase {
     private authService: IAuthService;

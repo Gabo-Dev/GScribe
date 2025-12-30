@@ -7,6 +7,7 @@ import { SupabaseCaptchaAdapter } from './infrastructure/adapters/SupabaseCaptch
 import { LoginUseCase } from './application/auth/LoginUseCase.ts';
 import { SignUpUseCase } from './application/auth/SignUpUseCase.ts';
 import { LogOutUseCase } from './application/auth/LogOutUseCase.ts';
+import { SendPasswordResetEmailUseCase } from './application/auth/SendPasswordResetEmailUseCase.ts'
 import { AuthProvider } from './infrastructure/ui/context/AuthProvider.tsx';
 import { SupabaseAuthAdapter } from './infrastructure/adapters/SupabaseAuthAdapter.ts'
 
@@ -23,6 +24,7 @@ const authAdapter = new SupabaseAuthAdapter(supabaseClient, captchaService);
 const loginUseCase = new LoginUseCase(authAdapter);
 const signUpUseCase = new SignUpUseCase(authAdapter);
 const logOutUseCase = new LogOutUseCase(authAdapter);
+const sendPasswordResetEmailUseCase = new SendPasswordResetEmailUseCase(authAdapter);
 
 /**
  * Composition Root (Dependency Injection)
@@ -42,6 +44,7 @@ createRoot(document.getElementById('root')!).render(
       loginUseCase={loginUseCase}
       signUpUseCase={signUpUseCase}
       logOutUseCase={logOutUseCase}
+      sendPasswordResetEmailUseCase={sendPasswordResetEmailUseCase}
     />
     </AuthProvider>
   </StrictMode>,

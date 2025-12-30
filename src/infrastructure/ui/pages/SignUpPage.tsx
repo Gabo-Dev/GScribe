@@ -1,12 +1,14 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
 import { useAuth } from "../hooks/useAuth.ts";
 import type { SignUpUseCase } from "../../../application/auth/SignUpUseCase.ts";
 import { Link, useNavigate } from "react-router-dom";
 import HCaptcha from "@hcaptcha/react-hcaptcha";
+import { StarfieldBackground } from "../components/StarfieldBackground.tsx";
 
 interface SignUpPageProps {
   signUpUseCase: SignUpUseCase;
 }
+
 const validatePassword = (password: string): string | null => {
   const hasUpper = /[A-Z]/.test(password);
   const hasLower = /[a-z]/.test(password);
@@ -35,7 +37,6 @@ export function SignUpPage({ signUpUseCase }: SignUpPageProps) {
 
   if (!hCaptchaSiteKey) {
     console.error("hCaptcha Site Key is not defined. Check your .env file.");
-    // Podrías renderizar un error aquí
   }
 
   const handleSignUp = async (captchaToken: string) => {
@@ -81,89 +82,9 @@ export function SignUpPage({ signUpUseCase }: SignUpPageProps) {
     captchaRef.current.execute();
   };
 
-  
-
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    let width = (canvas.width = globalThis.innerWidth);
-    let height = (canvas.height = globalThis.innerHeight);
-
-    const resize = () => {
-      width = canvas.width = globalThis.innerWidth;
-      height = canvas.height = globalThis.innerHeight;
-    };
-    globalThis.addEventListener("resize", resize);
-
-    const nodes = Array.from({ length: 20 }).map(() => ({
-      x: Math.random() * width,
-      y: Math.random() * height,
-      vx: (Math.random() - 0.5) * 0.4,
-      vy: (Math.random() - 0.5) * 0.4,
-      size: Math.random() * 1.2 + 0.8,
-      brightness: Math.random() * 0.6 + 0.4,
-      pulseSpeed: Math.random() * 0.015 + 0.01,
-      phase: Math.random() * Math.PI * 2,
-    }));
-
-    function draw() {
-      if (!ctx) return;
-      ctx.fillStyle = "#010310";
-      ctx.fillRect(0, 0, width, height);
-      const time = Date.now() * 0.001;
-
-      for (const node of nodes) {
-        const pulse = (Math.sin(time * node.pulseSpeed + node.phase) + 1) / 2;
-        const currentBrightness = node.brightness * (0.8 + pulse * 0.4);
-
-        const halo = ctx.createRadialGradient(
-          node.x,
-          node.y,
-          0,
-          node.x,
-          node.y,
-          node.size * 6
-        );
-        halo.addColorStop(0, `rgba(160, 220, 255, ${currentBrightness * 0.3})`);
-        halo.addColorStop(
-          0.6,
-          `rgba(120, 200, 255, ${currentBrightness * 0.1})`
-        );
-        halo.addColorStop(1, "rgba(120, 200, 255, 0)");
-
-        ctx.fillStyle = halo;
-        ctx.beginPath();
-        ctx.arc(node.x, node.y, node.size * 5, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.beginPath();
-        ctx.arc(node.x, node.y, node.size * 1.2, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(200, 230, 255, ${currentBrightness})`;
-        ctx.fill();
-      }
-
-      for (const node of nodes) {
-        node.x += node.vx;
-        node.y += node.vy;
-        if (node.x < 0 || node.x > width) node.vx *= -1;
-        if (node.y < 0 || node.y > height) node.vy *= -1;
-        node.x = Math.max(30, Math.min(width - 30, node.x));
-        node.y = Math.max(30, Math.min(height - 30, node.y));
-      }
-      requestAnimationFrame(draw);
-    }
-    draw();
-    return () => globalThis.removeEventListener("resize", resize);
-  }, []);
-
   return (
     <div className="relative min-h-screen bg-[#010310] overflow-hidden flex items-center justify-center">
-      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
+      <StarfieldBackground />
 
       <div className="relative z-10 w-full max-w-sm px-6">
         <div className="backdrop-blur-lg bg-white/3 rounded-xl border border-white/10 p-8 transition-all duration-300">

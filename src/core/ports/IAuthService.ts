@@ -1,4 +1,4 @@
-import type { User } from "../domain/User.tsx";
+import type { User } from "../domain/User.ts";
 
 export interface IAuthService {
     /**
@@ -25,4 +25,16 @@ export interface IAuthService {
      */
     logOut(): Promise<void>;
     
+    /**
+     * Sends a email to let Supabase know that the user wants to reset their password.
+     * @param email The email address to send link to reset password
+     * @returns A Promise that resolves with no value (`void`) on success.
+     */
+    sendPasswordResetEmail(email: string): Promise<void>;
+
+    /**
+     * Updates the user's password
+     * @param newPassword The new password to set
+     */
+    updatePassword(newPassword: string): Promise<void>;
 }
