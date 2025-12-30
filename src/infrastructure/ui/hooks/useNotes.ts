@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import type { Note } from "../../../core/domain/Note.ts";
-import { getNotesUseCase, createNoteUseCase, deleteNoteUseCase, updateNoteUseCase } from "../../../di.ts";
+import { getNotesUseCase, createNoteUseCase, deleteNoteUseCase, updateNoteUseCase } from "../../../dependencies.ts";
 
 export const useNotes = () =>{
     const [notes, setNotes] = useState<Note[]>([]);

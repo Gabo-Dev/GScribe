@@ -2,21 +2,24 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "./hooks/useAuth.ts";
 import { LoginPage } from "./pages/LoginPage.tsx";
 import { SignUpPage } from "./pages/SignUpPage.tsx";
+import { UpdatePasswordPage } from "./pages/UpdatePasswordPage.tsx";
 import { DashboardPage } from "./pages/DashboardPage.tsx";
-
 import { ToastProvider } from "./context/ToastProvider.tsx";
-
 import type { LoginUseCase } from "../../application/auth/LoginUseCase.ts";
 import type { SignUpUseCase } from "../../application/auth/SignUpUseCase.ts";
 import type { LogOutUseCase } from "../../application/auth/LogOutUseCase.ts";
+import type { SendPasswordResetEmailUseCase } from "../../application/auth/SendPasswordResetEmailUseCase.ts";
+import type { UpdatePasswordUseCase } from "../../application/auth/UpdatePasswordUseCase.ts";
 
 interface AppProps {
   loginUseCase: LoginUseCase;
   signUpUseCase: SignUpUseCase;
   logOutUseCase: LogOutUseCase;
+  sendPasswordResetEmailUseCase: SendPasswordResetEmailUseCase;
+  updatePasswordUseCase: UpdatePasswordUseCase;
 }
 
-function App({ loginUseCase, signUpUseCase, logOutUseCase }: AppProps) {
+function App({ loginUseCase, signUpUseCase, logOutUseCase, sendPasswordResetEmailUseCase, updatePasswordUseCase }: AppProps) {
   const { user } = useAuth();
 
   return (
@@ -29,7 +32,10 @@ function App({ loginUseCase, signUpUseCase, logOutUseCase }: AppProps) {
               user ? (
                 <Navigate to="/" />
               ) : (
-                <LoginPage loginUseCase={loginUseCase} />
+                <LoginPage 
+                  loginUseCase={loginUseCase}
+                  sendPasswordResetEmailUseCase={sendPasswordResetEmailUseCase}
+                />
               )
             }
           />
@@ -44,6 +50,15 @@ function App({ loginUseCase, signUpUseCase, logOutUseCase }: AppProps) {
               )
             }
           />
+
+          <Route
+          path="/reset-password"
+          element={
+            <UpdatePasswordPage  updatePasswordUseCase={updatePasswordUseCase}/>
+          }
+          />
+
+          
 
           <Route
             path="/"

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { supabaseClient } from "../../../di.ts"; 
+import { supabaseClient } from "../../../dependencies.ts"; 
 import { AuthContext } from "./AuthContext.ts";
 import type { User } from "../../../core/domain/User.ts"; 
 import type { User as SupabaseUser } from "@supabase/supabase-js"; 

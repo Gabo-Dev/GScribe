@@ -1,5 +1,5 @@
 import type { IAuthService } from "../../core/ports/IAuthService.ts";
-import type { User } from "../../core/domain/User.tsx";
+import type { User } from "../../core/domain/User.ts";
 import { SupabaseClient } from "@supabase/supabase-js";
 import type { ICaptchaService } from "../../core/ports/ICaptchaService.ts";
 
@@ -38,7 +38,7 @@ export class SupabaseAuthAdapter implements IAuthService {
   async signUp(email: string, alias: string, password: string, captchaToken: string): Promise<User> {
     try {
       await this.ensureIsHuman(captchaToken);
-      
+
       const { data, error } = await this.supabase.auth.signUp({
         email: email,
         password: password,
@@ -128,6 +128,43 @@ export class SupabaseAuthAdapter implements IAuthService {
 
       console.error("Supabase signIn error:", errorMessage);
       throw new Error(errorMessage);
+    }
+  }
+
+  /**
+  * Step 1: Send the user an email to get a password reset token.
+  * This email contains a link which sends the user back to your application.
+  * Refer to the docs for more details: https://supabase.com/docs/reference/javascript/auth-resetpasswordforemail
+  * @param email
+  */
+  async sendPasswordResetEmail(email: string): Promise<void> {
+    try {
+      if (email.length === 0) throw new Error("Email is required.");
+      const { error } = await this.supabase.auth
+        .resetPasswordForEmail(email, {
+          redirectTo: globalThis.location.origin + "/reset-password",
+        });
+
+      if (error) {
+        throw error;
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error("Supabase password reset error:", error.message);
+      } else {
+        console.error("Supabase password reset error:", error);
+      }
+      throw new Error("An error occurred during password reset. Please try again.");
+    }
+  }
+
+  async updatePassword(newPassword: string): Promise<void> {
+    const { error } = await this.supabase.auth.updateUser({
+      password: newPassword
+    })
+
+    if (error) {
+      throw error;
     }
   }
 }
