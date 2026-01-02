@@ -167,4 +167,11 @@ export class SupabaseAuthAdapter implements IAuthService {
       throw error;
     }
   }
+
+  async deleteAccount(): Promise<void> {
+    const { error } = await this.supabase.rpc('delete_user');
+    if (error) {
+      throw new Error(error.message);
+    }
+  }
 }

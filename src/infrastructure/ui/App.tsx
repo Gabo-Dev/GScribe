@@ -8,6 +8,7 @@ import { ToastProvider } from "./context/ToastProvider.tsx";
 import type { LoginUseCase } from "../../application/auth/LoginUseCase.ts";
 import type { SignUpUseCase } from "../../application/auth/SignUpUseCase.ts";
 import type { LogOutUseCase } from "../../application/auth/LogOutUseCase.ts";
+import type { DeleteAccountUseCase } from "../../application/auth/DeleteAccountUseCase.ts";
 import type { SendPasswordResetEmailUseCase } from "../../application/auth/SendPasswordResetEmailUseCase.ts";
 
 interface AppProps {
@@ -15,9 +16,10 @@ interface AppProps {
   signUpUseCase: SignUpUseCase;
   logOutUseCase: LogOutUseCase;
   sendPasswordResetEmailUseCase: SendPasswordResetEmailUseCase;
+  deleteAccountUseCase: DeleteAccountUseCase; 
 }
 
-function App({ loginUseCase, signUpUseCase, logOutUseCase, sendPasswordResetEmailUseCase }: AppProps) {
+function App({ loginUseCase, signUpUseCase, logOutUseCase, sendPasswordResetEmailUseCase, deleteAccountUseCase }: AppProps) {
   const { user } = useAuth();
 
   return (
@@ -62,8 +64,7 @@ function App({ loginUseCase, signUpUseCase, logOutUseCase, sendPasswordResetEmai
             path="/"
             element={
               user ? (
-                <DashboardPage logOutUseCase={logOutUseCase} />
-              ) : (
+                <DashboardPage logOutUseCase={logOutUseCase} deleteAccountUseCase={deleteAccountUseCase} />              ) : (
                 <Navigate to="/login" />
               )
             }

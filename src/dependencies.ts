@@ -7,6 +7,9 @@ import { SupabaseNoteAdapter } from "./infrastructure/adapters/SupabaseNoteAdapt
 // Auth
 import { SendPasswordResetEmailUseCase } from "./application/auth/SendPasswordResetEmailUseCase.ts";
 import { UpdatePasswordUseCase } from "./application/auth/UpdatePasswordUseCase.ts";
+import { DeleteAccountUseCase } from "./application/auth/DeleteAccountUseCase.ts";
+import { LogOutUseCase } from "./application/auth/LogOutUseCase.ts";
+
 // Notes
 import { GetNotesUseCase } from "./application/note/GetNotesCase.ts"; 
 import { CreateNoteUseCase } from "./application/note/CreateNoteUseCase.ts"; 
@@ -39,6 +42,8 @@ const noteRepository = new SupabaseNoteAdapter(supabaseClient);
 // Auth
 export const sendPasswordResetEmailUseCase = new SendPasswordResetEmailUseCase(authRepository);
 export const updatePasswordUseCase = new UpdatePasswordUseCase(authRepository);
+export const logOutUseCase = new LogOutUseCase(authRepository);
+export const deleteAccountUseCase = new DeleteAccountUseCase(authRepository);
 
 // Notes
 export const getNotesUseCase = new GetNotesUseCase(noteRepository);

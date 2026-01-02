@@ -37,4 +37,10 @@ export interface IAuthService {
      * @param newPassword The new password to set
      */
     updatePassword(newPassword: string): Promise<void>;
+
+    /**
+     * Deletes the user's account
+     * 
+    */
+    deleteAccount(): Promise<void>;
 }
