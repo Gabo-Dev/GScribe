@@ -7,6 +7,12 @@ export class DeleteAccountUseCase {
     }
 
     async execute(): Promise<void> {
-        return await this.authService.deleteAccount();
+         await this.authService.deleteAccount();
+
+         try {
+            await this.authService.logOut();
+        } catch (e) {
+            console.warn("Account deleted. Error logging out.", e);
+        }
     }
 }
