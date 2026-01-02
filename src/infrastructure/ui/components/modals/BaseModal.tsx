@@ -5,14 +5,15 @@ interface Props {
   onClose: () => void;
   title: string;
   children: React.ReactNode;
+  maxWidth?: string;
 }
 
-export const BaseModal = ({ isOpen, onClose, title, children }: Props) => {
+export const BaseModal = ({ isOpen, onClose, title, children, maxWidth = 'max-w-md' }: Props) => {
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-      <div className="relative w-full max-w-md overflow-hidden rounded-2xl border border-white/10 bg-[#0f111a] shadow-2xl shadow-black/50">
+      <div className={`relative w-full ${maxWidth} overflow-hidden rounded-2xl border border-white/10 bg-[#0f111a] shadow-2xl shadow-black/50`}>
         <div className="flex items-center justify-between border-b border-white/5 p-6">
           <h3 className="text-lg font-medium text-white">
             {title}

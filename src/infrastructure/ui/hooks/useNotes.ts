@@ -26,9 +26,8 @@ export const useNotes = () =>{
         setError(null);
         try {
             const newNote = await createNoteUseCase.execute(title, content);
-            // Optimistic UI update o recarga:
             setNotes(prev => [newNote, ...prev]); 
-            return true; // Indicamos éxito a la vista
+            return true; 
         } catch (err) {
             const message = err instanceof Error ? err.message : "Error al crear nota";
             setError(message);
@@ -54,15 +53,20 @@ export const useNotes = () =>{
         }
     }
 
-    const updateNote = async (note: Note) => {
+    const updateNote = async (updateNote: Note) => {
         const previousNotes = [...notes];
 
         setNotes((prev) =>
-            prev.map((note) => (note.id === note.id ? note : note))
+            prev.map((currentNote) => {
+                if (currentNote.id === updateNote.id) {
+                    return updateNote;
+                }
+                return currentNote;
+            })
         );
 
         try {
-            await updateNoteUseCase.execute(note);
+            await updateNoteUseCase.execute(updateNote);
             return true;
         } catch (error) {
             setNotes(previousNotes);

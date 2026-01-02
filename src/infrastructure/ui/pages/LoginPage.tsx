@@ -4,8 +4,8 @@ import { useAuth } from '../hooks/useAuth.ts';
 import { useToast } from '../hooks/useToast.ts';
 import type { LoginUseCase } from '../../../application/auth/LoginUseCase.ts';
 import type { SendPasswordResetEmailUseCase } from '../../../application/auth/SendPasswordResetEmailUseCase.ts';
-import { BaseModal } from '../components/BaseModal.tsx';
-import { ResetPasswordForm } from '../components/ResetPasswordForm.tsx';
+import { BaseModal } from '../components/modals/BaseModal.tsx';
+import { ResetPasswordForm } from '../components/modals/ResetPasswordForm.tsx';
 import { StarfieldBackground } from '../components/StarfieldBackground.tsx';
 
 interface LoginPageProps {
@@ -146,6 +146,7 @@ export function LoginPage({ loginUseCase, sendPasswordResetEmailUseCase }: Login
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
         title="Reset Password"
+        maxWidth="max-w-md"
       >
         <ResetPasswordForm
           isLoading={isLoadingReset}
