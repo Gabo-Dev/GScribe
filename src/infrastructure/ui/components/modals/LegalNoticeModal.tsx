@@ -3,20 +3,29 @@ import { BaseModal } from './BaseModal.tsx';
 const LEGAL_SECTIONS = [
   {
     title: "1. Project Purpose",
-    content: "GScribe is an educational demonstration platform developed to illustrate Clean Architecture principles and secure Full Stack development. It is not a commercial product and offers no service guarantees."
+    content:
+      "GScribe is an educational demonstration platform developed to illustrate Clean Architecture principles and secure Full Stack development. It is not a commercial product and offers no service guarantees.",
   },
   {
-    title: "2. Privacy & Data (RLS)",
-    content: "Security is managed via Supabase Row Level Security (RLS). Your data is strictly private and only accessible by your authenticated user. We do not share information with third parties."
+    title: "2. Project Design",
+    content:
+      "GScribe is built using the following technologies: React, TypeScript, Vite, Supabase, and Tailwind CSS. The version 1.0 has been designed exclusively for desktop environments. Please note that mobile responsiveness is not currently supported. ",
   },
   {
-    title: "3. Right to be Forgotten",
-    content: "In compliance with privacy regulations, you have a 'Delete Account' option in the dashboard that will permanently erase all your data from our records."
+    title: "3. Privacy & Data (RLS)",
+    content:
+      "Security is managed via Supabase Row Level Security (RLS). Your data is strictly private and only accessible by your authenticated user. We do not share information with third parties.",
   },
   {
-    title: "4. Cookie Usage",
-    content: "We use only essential technical cookies to maintain a secure session (Supabase Auth). We do not use tracking or advertising cookies."
-  }
+    title: "4. Right to be Forgotten",
+    content:
+      "In compliance with privacy regulations, you have a 'Delete Account' option in the dashboard that will permanently erase all your data from our records.",
+  },
+  {
+    title: "5. Cookie Usage",
+    content:
+      "We use only essential technical cookies to maintain a secure session (Supabase Auth). We do not use tracking or advertising cookies.",
+  },
 ];
 
 interface Props {

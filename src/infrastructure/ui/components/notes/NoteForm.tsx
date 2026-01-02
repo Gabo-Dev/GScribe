@@ -27,6 +27,20 @@ export function NoteForm({
 }: Props) {
   const isLocked = isLimitedReached || isSaving || isLoading;
 
+  if (isLoading) {
+    return (
+      <div className="w-full h-[300px] border-2 border-sky-900/20 rounded-xl p-6 bg-[#0A1025]/50 backdrop-blur-xl flex flex-col items-center justify-center gap-4 animate-pulse">
+        <div className="h-2 w-24 bg-sky-900/50 rounded-full mb-8"></div> 
+        <div className="h-4 w-full bg-sky-900/30 rounded"></div>
+        <div className="h-4 w-3/4 bg-sky-900/30 rounded"></div>
+        <div className="h-4 w-5/6 bg-sky-900/30 rounded"></div>
+        <div className="mt-8 flex gap-2 text-sky-500/50 font-mono text-xs tracking-widest">
+           <span className="animate-spin">✣</span> SYSTEM_INITIALIZING...
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
       className={`relative w-full border-2 rounded-xl p-6 transition-all duration-300 overflow-hidden flex flex-col gap-6

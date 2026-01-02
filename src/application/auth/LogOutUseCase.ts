@@ -1,4 +1,4 @@
-import type { IAuthService } from "../../core/ports/IAuthService";
+import type { IAuthService } from "../../core/ports/IAuthService.ts";
 
 export class LogOutUseCase {
     private authService: IAuthService;

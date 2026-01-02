@@ -20,6 +20,15 @@ interface DashboardPageProps {
   deleteAccountUseCase: DeleteAccountUseCase;
 }
 
+interface DatabaseError {
+  message: string;
+  code?: string; // Postgres suele devolver códigos
+}
+
+function isDatabaseError(error: unknown): error is DatabaseError {
+  return typeof error === "object" && error !== null && "message" in error;
+}
+
 export function DashboardPage({ logOutUseCase }: DashboardPageProps) {
   const { user, setUser } = useAuth();
   const { showToast } = useToast();
@@ -37,12 +46,11 @@ export function DashboardPage({ logOutUseCase }: DashboardPageProps) {
   const [content, setContent] = useState("");
 
   const [isLegalModalOpen, setIsLegalModalOpen] = useState(false);
-  const [isDeletingAccountModalOpen, setIsDeletingAccountModalOpen] = useState(false);
+  const [isDeletingAccountModalOpen, setIsDeletingAccountModalOpen] =
+    useState(false);
   const [noteToDelete, setNoteToDelete] = useState<string | null>(null);
 
   const [activeNoteId, setActiveNoteId] = useState<string | null>(null);
-
-  
 
   const {
     notes,
@@ -62,6 +70,8 @@ export function DashboardPage({ logOutUseCase }: DashboardPageProps) {
       setUser(null);
       showToast("Account deleted successfully", "success");
       setIsDeletingAccountModalOpen(false);
+
+      globalThis.location.href = "/login";
     }
     if (deleteError) {
       showToast(deleteError, "error");
@@ -92,15 +102,29 @@ export function DashboardPage({ logOutUseCase }: DashboardPageProps) {
 
     let success = false;
 
-    if (editingNote) {
-      success = await updateNote({ ...editingNote, title, content });
-      if (success) showToast("Note updated successfully", "success");
-    } else {
-      success = await addNote(title, content);
-      if (success) showToast("Note created successfully", "success");
-    }
+    try {
+      if (editingNote) {
+        success = await updateNote({ ...editingNote, title, content });
+        if (success) showToast("Note updated successfully", "success");
+      } else {
+        success = await addNote(title, content);
+        if (success) showToast("Note created successfully", "success");
+      }
 
-    if (success) resetForm();
+      if (success) resetForm();
+    } catch (error: unknown) {
+      if (isDatabaseError(error)) {
+        if (error.message.includes("foreign key constraint") || error.message.includes("notes_user_id_fkey")) {
+          showToast("User not found", "error");
+          localStorage.clear();
+          globalThis.location.href = "/login";
+          return;
+        }
+        showToast(`Database Error: ${error.message}`, "error");
+      }else{
+        showToast("An unexpected error occurred", "error");
+      }
+    }
   };
 
   const requestDeleteNote = (id: string) => {
@@ -134,11 +158,18 @@ export function DashboardPage({ logOutUseCase }: DashboardPageProps) {
     setContent("");
   };
 
-  const savedActiveNote = notes.find((note) => note.id === activeNoteId) || null;
-  
-  const displayNote = (editingNote?.id === activeNoteId && savedActiveNote)
-    ? { ...savedActiveNote, title: title, content: content, updatedAt: new Date() }
-    : savedActiveNote;
+  const savedActiveNote =
+    notes.find((note) => note.id === activeNoteId) || null;
+
+  const displayNote =
+    editingNote?.id === activeNoteId && savedActiveNote
+      ? {
+          ...savedActiveNote,
+          title: title,
+          content: content,
+          updatedAt: new Date(),
+        }
+      : savedActiveNote;
 
   return (
     <div className="h-screen w-full flex flex-col overflow-hidden bg-[#020410] text-blue-50 font-sans selection:bg-sky-500/30">
@@ -184,22 +215,21 @@ export function DashboardPage({ logOutUseCase }: DashboardPageProps) {
         </div>
 
         <div className="shrink-0 w-full px-6 pb-3 hidden md:flex flex-col gap-3">
-          
           <div className="flex items-center gap-3 select-none">
-             <div className="flex items-center gap-2 text-sky-500/80">
-                <span className="text-lg">›</span>
-                <h3 className="text-xs font-mono font-bold uppercase tracking-[0.2em] shadow-sky-500/20 drop-shadow-[0_0_5px_rgba(14,165,233,0.5)]">
-                  // MY_NOTES_ARCHIVE
-                </h3>
-             </div>
-             <div className="h-px flex-1 bg-linear-to-r from-sky-900/50 to-transparent"></div>
-             <span className="text-[10px] font-mono text-gray-600">
-                TOTAL_ENTRIES: {notes.length}
-             </span>
+            <div className="flex items-center gap-2 text-sky-500/80">
+              <span className="text-lg">›</span>
+              <h3 className="text-xs font-mono font-bold uppercase tracking-[0.2em] shadow-sky-500/20 drop-shadow-[0_0_5px_rgba(14,165,233,0.5)]">
+                // MY_NOTES_ARCHIVE
+              </h3>
+            </div>
+            <div className="h-px flex-1 bg-linear-to-r from-sky-900/50 to-transparent"></div>
+            <span className="text-[10px] font-mono text-gray-600">
+              TOTAL_ENTRIES: {notes.length}
+            </span>
           </div>
 
           <div className="h-28 w-full">
-            <NotesCarousel 
+            <NotesCarousel
               notes={notes}
               activeNoteId={activeNoteId}
               onSelect={setActiveNoteId}
