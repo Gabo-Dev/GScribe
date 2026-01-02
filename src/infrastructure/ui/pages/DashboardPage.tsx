@@ -42,6 +42,8 @@ export function DashboardPage({ logOutUseCase }: DashboardPageProps) {
 
   const [activeNoteId, setActiveNoteId] = useState<string | null>(null);
 
+  
+
   const {
     notes,
     isNotesLoading,
@@ -51,6 +53,9 @@ export function DashboardPage({ logOutUseCase }: DashboardPageProps) {
     deleteNote,
     updateNote,
   } = useNotes();
+
+  const MAX_NOTES = 2;
+  const isLimitedReached = notes.length >= MAX_NOTES;
 
   useEffect(() => {
     if (deleteSuccess) {
@@ -165,6 +170,7 @@ export function DashboardPage({ logOutUseCase }: DashboardPageProps) {
               editingNote={editingNote}
               onCancel={resetForm}
               onSubmit={handleSaveNote}
+              isLimitedReached={isLimitedReached}
             />
           </div>
 
