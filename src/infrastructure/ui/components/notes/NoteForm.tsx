@@ -25,7 +25,7 @@ export function NoteForm({
   onSubmit,
   isLimitedReached,
 }: Props) {
-  const isLocked = isLimitedReached || isSaving || isLoading;
+  const isLocked = (isLimitedReached && !editingNote) || isSaving || isLoading;
 
   if (isLoading) {
     return (
@@ -94,7 +94,7 @@ export function NoteForm({
                 ${
                   isLoading || !title.trim() || isLocked
                     ? "text-gray-500 border-gray-700 cursor-not-allowed opacity-50"
-                    : "text-sky-400 hover:text-sky-200 border-sky-500/50 hover:border-sky-400 hover:bg-sky-500/10 hover:shadow-[0_0_15px_rgba(14,165,233,0.3)] active:scale-95" // Estado activo
+                    : "text-sky-400 hover:text-sky-200 border-sky-500/50 hover:border-sky-400 hover:bg-sky-500/10 hover:shadow-[0_0_15px_rgba(14,165,233,0.3)] active:scale-95"
                 }`}
               title="Execute Save Protocol"
             >
